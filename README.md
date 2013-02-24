@@ -10,13 +10,12 @@ This simple class provides an arithmetic evaluator for PHP.
 
 Just include the "Evaluator.php" file and then use it as follows:
 
-<?php
-include_once 'Evaluator.php';
-
-$ev = new Evaluator('(2*2+3)/7 + 8 == $var');
-$result = $ev->evaluate(array('$var' => 9));
-echo $result;
-echo "<BR/>";
+> <?php  
+> include_once 'Evaluator.php';  
+> 
+> $ev = new Evaluator('(2*2+3)/7 + 8 == $var');  
+> $result = $ev->evaluate(array('$var' => 9));  
+> echo $result;    
 
 This will display 1! Because 9 == 9 and yes, you can use variables and set them at evaluation time!
 As illustrated by this example, booleans are converted to 0 or 1.
