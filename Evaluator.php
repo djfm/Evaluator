@@ -82,12 +82,6 @@ class Evaluator
 		$this->canonicalize($nodes);
 
 		$this->ast = $nodes;
-
-		echo "<pre>";
-		echo $this->getParsedExpression();
-		echo "\n";
-		echo "</pre>";
-
 	}
 
 	public function getParsedExpression()
@@ -222,8 +216,3 @@ class Evaluator
 	}
 
 }
-
-$evaluator = new Evaluator('(2*2+3)/7 + 8 == $var');
-$result = $evaluator->evaluate(array('$var' => 9));
-echo $result;
-echo "<BR/>";
