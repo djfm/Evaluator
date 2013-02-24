@@ -1,21 +1,20 @@
 <?php
 
-@ini_set('display_errors', 'on');
-
 class Evaluator
 {
 
+	//operators by order of precedence and with their arity
 	private $operators = array( '!'  => 1,
 								'/'  => 2,
 								'*'  => 2,
 								'-'  => 2,
 								'+'  => 2,
-								'&&' => 2, 
-								'||' => 2,
 								'<'  => 2,
 								'>'  => 2,
 								'<=' => 2,
 								'>=' => 2,
+								'&&' => 2, 
+								'||' => 2,
 								'!=' => 2,
 								'==' => 2);
 
@@ -87,8 +86,6 @@ class Evaluator
 		echo "<pre>";
 		echo $this->getParsedExpression();
 		echo "\n";
-		print_r($nodes);
-		echo "\n$expression";
 		echo "</pre>";
 
 	}
@@ -98,9 +95,50 @@ class Evaluator
 		return $this->toString($this->ast);
 	}
 
-	public function evaluate($arguments)
+	public function evaluate($arguments = array())
 	{
-		
+		return $this->reduce($this->ast, $arguments);
+	}
+
+	private function compute($operator, $arguments)
+	{
+		if($operator == '!')return (int)(!$arguments[0]);
+		else if($operator == '/')return $arguments[0] / $arguments[1];
+		else if($operator == '*')return $arguments[0] * $arguments[1];
+		else if($operator == '-')return $arguments[0] - $arguments[1];
+		else if($operator == '+')return $arguments[0] + $arguments[1];
+		else if($operator == '&&')return (int)($arguments[0] && $arguments[1]);
+		else if($operator == '||')return (int)($arguments[0] || $arguments[1]);
+		else if($operator == '<')return (int)($arguments[0] < $arguments[1]);
+		else if($operator == '>')return (int)($arguments[0] > $arguments[1]);
+		else if($operator == '<=')return (int)($arguments[0] <= $arguments[1]);
+		else if($operator == '>=')return (int)($arguments[0] >= $arguments[1]);
+		else if($operator == '!=')return (int)($arguments[0] != $arguments[1]);
+		else if($operator == '==')return (int)($arguments[0] == $arguments[1]);
+		else throw new Exception("Unknown operator $operator!");
+	}
+
+	private function reduce($node, $arguments)
+	{
+		if($node['type'] == 'application')
+		{
+			$ops = array();
+			foreach($node['operands'] as $operand)
+			{
+				$ops[] = $this->reduce($operand, $arguments);
+			}
+			return $this->compute($node['operator'], $ops);
+		}
+		else if($node['type'] == 'number')return $node['value'];
+		else if($node['type'] == 'variable')
+		{
+			if(isset($arguments[$node['value']]))
+			{
+				return $arguments[$node['value']];
+			}
+			else throw new Exception("Variable " . $node['value'] . " was not assigned!");
+		}
+		else throw new Exception("Don't know how to reduce node with type " . $node['type']);
 	}
 
 	private function toString($node)
@@ -185,4 +223,7 @@ class Evaluator
 
 }
 
-new Evaluator('1+(2)*((1-444))+2/8/7*($var-$other_var_2)');
+$evaluator = new Evaluator('(2*2+3)/7 + 8 == $var');
+$result = $evaluator->evaluate(array('$var' => 9));
+echo $result;
+echo "<BR/>";
